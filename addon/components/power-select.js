@@ -280,7 +280,21 @@ export default Component.extend({
       if (index === -1) { return; }
       let optionElement = optionsList.querySelectorAll('[data-option-index]').item(index);
       if (!optionElement) { return; }
-      let optionTopScroll = optionElement.offsetTop - optionsList.offsetTop;
+
+      let optionOffsetTop = optionElement.offsetTop;
+      if (optionElement.parentElement.getAttribute('role') === 'group') {
+        const optionGroupElement = optionElement.parentElement.parentElement;
+        const groupOffsetTop = optionGroupElement.offsetTop;
+
+        // If optionOffsetTop is less then groupOffsetTop then optionElement.offsetParent is not
+        // optionsList (it is optionGroupElement). Since we need offsetTop to optionsList we need
+        // to sum those two.
+        if (optionOffsetTop < groupOffsetTop) {
+          optionOffsetTop += groupOffsetTop;
+        }
+      }
+
+      let optionTopScroll = optionOffsetTop - optionsList.offsetTop;
       let optionBottomScroll = optionTopScroll + optionElement.offsetHeight;
       if (optionBottomScroll > optionsList.offsetHeight + optionsList.scrollTop) {
         optionsList.scrollTop = optionBottomScroll - optionsList.offsetHeight;
